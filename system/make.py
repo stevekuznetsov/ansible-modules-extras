@@ -59,6 +59,11 @@ EXAMPLES = '''
     params:
       NUM_THREADS: 4
       BACKEND: lapack
+
+# Skip building a file as part of a target
+- make:
+    chdir: /home/ubuntu/cool-project
+    target: 'all -o somefile'
 '''
 
 # TODO: Disabled the RETURN as it was breaking docs building. Someone needs to
@@ -106,13 +111,14 @@ def main():
     )
     # Build up the invocation of `make` we are going to use
     make_path = module.get_bin_path('make', True)
-    make_target = module.params['target']
+    make_target = module.params['target'].split()
     if module.params['params'] is not None:
         make_parameters = [k + '=' + str(v) for k, v in module.params['params'].iteritems()]
     else:
         make_parameters = []
 
-    base_command = [make_path, make_target]
+    base_command = [make_path]
+    base_command.extend(make_target)
     base_command.extend(make_parameters)
 
     # Check if the target is already up to date
